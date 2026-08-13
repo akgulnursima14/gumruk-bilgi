@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="tr" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GÜMRÜKLÜ YOLCU BİLGİ SİSTEMİ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/css/tokens.css">
+  <link rel="stylesheet" href="./assets/css/base.css">
+  <link rel="stylesheet" href="./assets/css/components.css">
+  <meta name="theme-color" content="#F6F7F8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0E1116"  media="(prefers-color-scheme: dark)">
+  <meta name="application-name" content="GÜMRÜKLÜ YOLCU BİLGİ SİSTEMİ">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Gümrüklü Yolcu">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+</head>
+<body>
+
+<div id="backup-reminder" class="backup-banner" hidden>
+  <span class="backup-msg"></span>
+  <button class="btn btn-warn btn-sm backup-now-btn">Şimdi Yedekle</button>
+  <button class="btn btn-ghost btn-sm backup-dismiss-btn">Kapat</button>
+</div>
+
+<div class="app">
+  <header class="brand">
+    <div class="logo" aria-hidden="true">&#9992;</div>
+    <div>
+      <h1>GÜMRÜKLÜ YOLCU BİLGİ SİSTEMİ</h1>
+      <p class="sub">Ana klasörler altında uçuşları ve yolcuları düzenleyin.</p>
+    </div>
+    <button id="themeToggle" class="btn btn-ghost theme-toggle"
+            title="Temayı değiştir" aria-label="Temayı değiştir">&#127769;</button>
+  </header>
+
+  <div class="notice" role="status">
+    Kayıtlar bu tarayıcıda yerel olarak tutulur. Düzenli yedek almanız önerilir.
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Ana menü">
+    <button class="tab active" role="tab" aria-selected="true"
+            aria-controls="single"     data-tab="single">Havalimanı Sorgula</button>
+    <button class="tab"        role="tab" aria-selected="false"
+            aria-controls="flightinfo" data-tab="flightinfo">Uçuş Bilgisi</button>
+    <button class="tab"        role="tab" aria-selected="false"
+            aria-controls="flights"    data-tab="flights">Uçak Kayıtları</button>
+  </div>
+
+  <div class="panel">
+
+    <section id="single" class="view active" role="tabpanel">
+      <div class="search-card">
+        <div id="data-loading" class="loading-state" role="status">
+          Havalimanı verisi yükleniyor&hellip;
+        </div>
+        <div id="search-ui" hidden>
+          <div class="search">
+            <input id="q" class="input" autocomplete="off" spellcheck="false"
+                   placeholder="AYT, LTAI, Sivas, Heathrow&hellip;"
+                   aria-label="Havalimanı ara">
+            <button id="find" class="btn btn-primary">Bul</button>
+          </div>
+          <div class="search-help">
+            <span class="muted small">Kod veya şehir/havalimanı adıyla arayın.</span>
+            <span class="chip" data-code="AYT">AYT</span>
+            <span class="chip" data-code="IST">IST</span>
+            <span class="chip" data-code="Sivas">Sivas</span>
+            <span class="chip" data-code="Heathrow">Heathrow</span>
+          </div>
+          <div id="result" class="compact-result"></div>
+        </div>
+        <div id="data-error" class="error-state" hidden></div>
+      </div>
+    </section>
+
+    <section id="flightinfo" class="view" role="tabpanel">
+      <div class="search-card">
+        <div class="flight-query-box">
+          <h2>Uçuş Bilgisi Sorgula</h2>
+          <p class="muted small">
+            Uçuş numarası ve tarih girerek kalkış bilgisini otomatik çekin.
+          </p>
+          <div class="search" style="margin-top:14px">
+            <input id="standaloneFlightNo" class="input" autocomplete="off" spellcheck="false"
+                   placeholder="Uçuş numarası &mdash; örn. TK2422"
+                   aria-label="Uçuş numarası">
+            <button id="standaloneFlightSearch" class="btn btn-primary">Sorgula</button>
+          </div>
+          <div style="margin-top:10px">
+            <input id="standaloneFlightDate" class="input" type="date" aria-label="Tarih">
+          </div>
+          <div id="flightApiResult" class="flight-api-result" hidden></div>
+          <div id="standaloneFlightPreview" class="flight-query-preview" hidden></div>
+          <div class="flight-actions">
+            <button id="standaloneGoogleSearch"  class="btn btn-secondary">Google'da Aç</button>
+            <button id="standaloneGoogleFlights" class="btn btn-ghost">Google Flights</button>
+          </div>
+          <p class="muted small" style="margin-top:10px">
+            Örnek: <strong>TK2422</strong> yazıp sorguladığınızda uçuş bilgisi ve
+            Google araması otomatik aktarılır.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="flights" class="view" role="tabpanel">
+      <div class="toolbar">
+        <button id="newGroup"    class="btn btn-primary">+ Yeni Ana Klasör</button>
+        <button id="newFlight"   class="btn btn-secondary">+ Yeni Uçuş</button>
+        <button id="backupData"  class="btn btn-secondary">Yedekle</button>
+        <button id="restoreData" class="btn btn-secondary">Yedeği Yükle</button>
+        <input  id="restoreInput" type="file" accept=".json,application/json" hidden>
+      </div>
+      <div class="flights-layout">
+        <aside class="sidebar">
+          <div class="sidebar-head">
+            <h3>Klasörler</h3>
+            <span id="groupTotal" class="muted small"></span>
+          </div>
+          <div id="tree" class="tree"></div>
+        </aside>
+        <main id="workspace" class="workspace"></main>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<footer>
+  Havalimanı veri kaynağı: OurAirports &nbsp;&middot;&nbsp; 11.679 kayıt
+  &nbsp;&middot;&nbsp; Çevrimdışı çalışır
+</footer>
+
+<div id="modalBackdrop" class="modal-backdrop" hidden aria-hidden="true"></div>
+
+<div id="flightModal" class="modal" hidden
+     role="dialog" aria-modal="true" aria-labelledby="flightModalTitle">
+  <div class="modal-card">
+    <h2 id="flightModalTitle">Yeni Uçuş</h2>
+    <div class="form-grid">
+      <div>
+        <label class="label" for="flightGroup">Ana klasör</label>
+        <select id="flightGroup" class="input"></select>
+      </div>
+      <div>
+        <label class="label" for="flightNo">Uçuş numarası</label>
+        <input id="flightNo" class="input" placeholder="TK2422">
+      </div>
+      <div>
+        <label class="label" for="flightDate">Tarih</label>
+        <input id="flightDate" class="input" type="date">
+      </div>
+      <div>
+        <label class="label" for="flightLabel">Açıklama (isteğe bağlı)</label>
+        <input id="flightLabel" class="input" placeholder="Örn. İstanbul &mdash; Antalya">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button id="cancelFlight"  class="btn btn-secondary">İptal</button>
+      <button id="createFlight"  class="btn btn-primary">Uçuşu Ekle</button>
+    </div>
+  </div>
+</div>
+
+<div id="confirmModal" class="modal" hidden
+     role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="modal-card">
+    <h2 id="confirmTitle">Onayla</h2>
+    <p id="confirmMsg" style="margin-top:8px;color:var(--muted)"></p>
+    <div class="form-actions">
+      <button id="confirmCancel" class="btn btn-secondary">İptal</button>
+      <button id="confirmOk"     class="btn btn-danger">Sil</button>
+    </div>
+  </div>
+</div>
+
+<div id="promptModal" class="modal" hidden
+     role="dialog" aria-modal="true" aria-labelledby="promptTitle">
+  <div class="modal-card">
+    <h2 id="promptTitle">Düzenle</h2>
+    <div class="form-grid">
+      <div>
+        <label id="promptLabel" class="label" for="promptInput">Değer</label>
+        <input  id="promptInput" class="input">
+        <div    id="promptError" class="field-error" hidden></div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button id="promptCancel" class="btn btn-secondary">İptal</button>
+      <button id="promptOk"     class="btn btn-primary">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<div id="editPassModal" class="modal" hidden
+     role="dialog" aria-modal="true" aria-labelledby="editPassTitle">
+  <div class="modal-card">
+    <h2 id="editPassTitle">Yolcuyu Düzenle</h2>
+    <div class="form-grid">
+      <div>
+        <label class="label" for="editPName">Yolcu adı</label>
+        <input id="editPName" class="input" placeholder="Ad Soyad">
+        <div   id="editPNameErr" class="field-error" hidden></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)">
+        <div>
+          <label class="label" for="editPBags">Çanta sayısı</label>
+          <input id="editPBags" class="input" type="number" min="0" step="1">
+          <div   id="editPBagsErr" class="field-error" hidden></div>
+        </div>
+        <div>
+          <label class="label" for="editPWeight">Ağırlık (kg)</label>
+          <input id="editPWeight" class="input" type="number" min="0" step="0.1">
+          <div   id="editPWeightErr" class="field-error" hidden></div>
+        </div>
+      </div>
+      <div>
+        <label class="label" for="editPAirport">Havalimanı kodu (IATA / ICAO / ident)</label>
+        <input id="editPAirport" class="input" placeholder="AYT, LTAI, 07FA&hellip;">
+        <div   id="editPAirportPreview" class="airport-preview"></div>
+        <div   id="editPAirportErr" class="field-error" hidden></div>
+      </div>
+      <div>
+        <label class="label" for="editPNote">Not</label>
+        <input id="editPNote" class="input" placeholder="İsteğe bağlı">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button id="editPassCancel" class="btn btn-secondary">İptal</button>
+      <button id="editPassOk"     class="btn btn-primary">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(console.error);
+  }
+</script>
+<script type="module" src="./assets/js/app.js"></script>
+</body>
+</html>

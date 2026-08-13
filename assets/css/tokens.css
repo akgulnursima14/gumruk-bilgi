@@ -1,0 +1,78 @@
+/* ============================================================
+   tokens.css — Tasarım sistemi değişkenleri
+   Operasyon Konsolu teması: havalimanı panosu (FIDS) esintili
+   ============================================================ */
+
+:root {
+  /* --- Açık tema (varsayılan) --- */
+  --bg:        #F6F7F8;
+  --surface:   #FFFFFF;
+  --surface-2: #F0F2F4;
+  --ink:       #14181C;
+  --muted:     #5A6570;
+  --border:    #E1E5E9;
+  --accent:    #0E6E64;
+  --accent-ink:#FFFFFF;
+  --ok:        #2E7D52;
+  --warn:      #B26A00;
+  --danger:    #B02A37;
+  --plate-bg:  #0E1116;
+  --plate-ink: #E8FF7A;
+
+  /* --- Tipografi --- */
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  1.875rem;
+
+  /* --- Boşluk skalası --- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* --- Yarıçap --- */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   16px;
+  --radius-full: 9999px;
+
+  /* --- Gölge --- */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.09);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.13);
+}
+
+/* --- Koyu tema --- */
+[data-theme="dark"] {
+  --bg:        #0E1116;
+  --surface:   #1A1F27;
+  --surface-2: #222833;
+  --ink:       #E8EDF3;
+  --muted:     #7A8898;
+  --border:    #2C3340;
+  --accent:    #1AA899;
+  --accent-ink:#0E1116;
+  --ok:        #3DAB6E;
+  --warn:      #D4920A;
+  --danger:    #D94053;
+  --plate-bg:  #0E1116;
+  --plate-ink: #E8FF7A;
+}
+
+/* --- Hareketi azalt --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

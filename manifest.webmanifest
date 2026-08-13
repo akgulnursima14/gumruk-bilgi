@@ -1,0 +1,25 @@
+{
+  "name": "GÜMRÜKLÜ YOLCU BİLGİ SİSTEMİ",
+  "short_name": "Gümrüklü Yolcu",
+  "description": "Havalimanı arama, ayrı uçuş bilgisi sorgulama, uçuş klasörleri, yolcu kayıtları ve PDF raporlama sistemi.",
+  "lang": "tr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F6F7F8",
+  "theme_color": "#0E6E64",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
