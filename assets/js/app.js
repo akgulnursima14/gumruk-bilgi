@@ -2,7 +2,7 @@
  * app.js — Uygulama giriş noktası: olay bağlama, sekmeler, açılış akışı
  */
 
-import { loadAirports, exactAirport, esc } from './data.js';
+import { loadAirports, exactAirport, esc, byIATA } from './data.js';
 import {
   loadGroups, migrate, saveGroups,
   needsBackupReminder, backupReminderMsg, recordBackup
@@ -123,13 +123,17 @@ const wsHandlers = {
     const note   = document.getElementById('pNote')?.value.trim()   || '';
     const errEl  = document.getElementById('addPassError');
 
-    const show = msg => { if (errEl) { errEl.textContent = msg; errEl.hidden = false; } };
+    const show = msg => {
+      if (errEl) { errEl.textContent = msg; errEl.hidden = false; errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+      showToast(msg, 'warn');
+    };
     if (errEl) errEl.hidden = true;
 
-    if (!name)                                              { show('Yolcu adını yazın.'); return; }
-    if (bags === '' || !Number.isFinite(+bags)  || +bags < 0)  { show('Çanta sayısını kontrol edin.'); return; }
-    if (weight==='' || !Number.isFinite(+weight)||+weight<0)   { show('Ağırlığı kontrol edin.'); return; }
-    if (!exactAirport(code))                                { show('Geçerli bir havalimanı kodu girin (IATA, ICAO veya ident).'); return; }
+    if (!name) { show('Yolcu adını yazın.'); return; }
+    if (bags === '' || !Number.isFinite(+bags) || +bags < 0) { show('Çanta sayısını kontrol edin (0 veya daha büyük sayı).'); return; }
+    if (weight === '' || !Number.isFinite(+weight) || +weight < 0) { show('Ağırlığı kontrol edin (0 veya daha büyük sayı).'); return; }
+    if (byIATA.size === 0) { show('Havalimanı verisi henüz yüklenmedi. Lütfen birkaç saniye bekleyin.'); return; }
+    if (!exactAirport(code)) { show(`"${code || '?'}" tanımlı bir havalimanı kodu değil. IATA (AYT), ICAO (LTAI) veya ident girin.`); return; }
 
     try {
       await addPassenger(f, { name, bags, weight, code, note });
@@ -170,7 +174,22 @@ const wsHandlers = {
 
   togglePassenger: async (f, pid, checked) => {
     await togglePassenger(f, pid, checked);
-    renderAll();
+    // Formu silmemek için sadece istatistikleri güncelle
+    const ps  = f.passengers || [];
+    const chk = ps.filter(p => p.checked).length;
+    const totalBags = ps.reduce((s, p) => s + (+p.bags   || 0), 0);
+    const totalWt   = ps.reduce((s, p) => s + (+p.weight || 0), 0).toFixed(1);
+    const statsEl   = document.querySelector('#workspace .stats');
+    if (statsEl) {
+      statsEl.innerHTML = `
+        <span class="stat">Yolcu: <b>${ps.length}</b></span>
+        <span class="stat">Tikli: <b>${chk}</b></span>
+        <span class="stat">Kalan: <b>${ps.length - chk}</b></span>
+        <span class="stat">Toplam çanta: <b>${totalBags}</b></span>
+        <span class="stat">Toplam ağırlık: <b>${totalWt} kg</b></span>
+      `;
+    }
+    renderTree(getData(), getActiveGroupId(), getActiveFlightId(), treeHandlers);
   },
 
   editPassenger: (f, pid) => {
