@@ -53,8 +53,8 @@ function trapFocus(e, modal) {
 
 function openModal(el) {
   const bd = _backdrop();
-  if (bd) bd.hidden = false;
-  el.hidden = false;
+  if (bd) bd.classList.add('open');
+  el.classList.add('open');
   _openModal = el;
   el._trapFn = e => trapFocus(e, el);
   document.addEventListener('keydown', el._trapFn);
@@ -66,8 +66,8 @@ function openModal(el) {
 export function closeModal(el) {
   if (!el) return;
   const bd = _backdrop();
-  if (bd) bd.hidden = true;
-  el.hidden = true;
+  if (bd) bd.classList.remove('open');
+  el.classList.remove('open');
   if (el._trapFn) document.removeEventListener('keydown', el._trapFn);
   document.removeEventListener('keydown', handleGlobalEsc);
   _openModal = null;
@@ -79,6 +79,10 @@ function handleGlobalEsc(e) {
 
 document.getElementById('modalBackdrop')
   ?.addEventListener('click', () => { if (_openModal) closeModal(_openModal); });
+
+// Guard: sayfa yüklendiğinde hiçbir modal açık olmamalı
+document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
+document.getElementById('modalBackdrop')?.classList.remove('open');
 
 /* ================================================================
    ONAY MODALI
@@ -146,6 +150,7 @@ export function showPrompt(title, label, defaultVal = '') {
    ================================================================ */
 
 export function showEditPassModal(p, onSave) {
+  if (!p || !p.id) return;
   const modal = document.getElementById('editPassModal');
 
   document.getElementById('editPName').value   = p.name || '';

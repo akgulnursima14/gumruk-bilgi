@@ -84,14 +84,14 @@ function openFlightModal(groupId) {
 
   const modal = document.getElementById('flightModal');
   const bd    = document.getElementById('modalBackdrop');
-  modal.hidden = false;
-  bd.hidden    = false;
+  modal.classList.add('open');
+  bd.classList.add('open');
   setTimeout(() => document.getElementById('flightNo').focus(), 50);
 }
 
 function closeFlightModal() {
-  document.getElementById('flightModal').hidden = true;
-  document.getElementById('modalBackdrop').hidden = true;
+  document.getElementById('flightModal').classList.remove('open');
+  document.getElementById('modalBackdrop').classList.remove('open');
 }
 
 document.getElementById('cancelFlight')?.addEventListener('click', closeFlightModal);
