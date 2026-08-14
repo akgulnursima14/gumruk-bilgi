@@ -4,7 +4,7 @@
    - /api/* istekleri network-only (canlı uçuş verisi bayatlamasın)
    ============================================================ */
 
-const CACHE_NAME = 'gumruklu-yolcu-v7';
+const CACHE_NAME = 'gumruklu-yolcu-v8';
 
 const ASSETS = [
   './',

@@ -106,16 +106,17 @@ export async function renameFlight(fid, no) {
 /* ---- Yolcu işlemleri ---- */
 
 export async function addPassenger(flight, { name, bags, weight, code, note }) {
-  const a = exactAirport(code);
-  if (!a) throw new Error('Geçerli bir havalimanı kodu girin (IATA, ICAO veya ident).');
+  const trimCode = (code || '').trim().toUpperCase();
+  const a = trimCode ? exactAirport(trimCode) : null;
+  if (trimCode && !a) throw new Error(`"${trimCode}" tanımlı bir havalimanı kodu değil. IATA (AYT), ICAO (LTAI) veya ident girin — ya da boş bırakın.`);
   flight.passengers.push({
     id: uid(),
     name: name.trim(),
     bags: Number(bags),
     weight: Number(weight),
-    code: (a.i || a.o || a.d || code).toUpperCase(),
-    airportName: a.n,
-    country: a.ct || a.cc || '',
+    code: a ? (a.i || a.o || a.d || trimCode) : trimCode,
+    airportName: a ? a.n : '',
+    country: a ? (a.ct || a.cc || '') : '',
     note: (note || '').trim(),
     checked: false
   });
@@ -125,14 +126,15 @@ export async function addPassenger(flight, { name, bags, weight, code, note }) {
 export async function editPassenger(flight, pid, { name, bags, weight, code, note }) {
   const p = flight.passengers.find(x => x.id === pid);
   if (!p) return;
-  const a = exactAirport(code);
-  if (!a) throw new Error('Geçerli bir havalimanı kodu girin.');
+  const trimCode = (code || '').trim().toUpperCase();
+  const a = trimCode ? exactAirport(trimCode) : null;
+  if (trimCode && !a) throw new Error(`"${trimCode}" tanımlı bir havalimanı kodu değil.`);
   p.name        = name.trim() || p.name;
   p.bags        = Number(bags);
   p.weight      = Number(weight);
-  p.code        = (a.i || a.o || a.d || code).toUpperCase();
-  p.airportName = a.n;
-  p.country     = a.ct || a.cc || '';
+  p.code        = a ? (a.i || a.o || a.d || trimCode) : trimCode;
+  p.airportName = a ? a.n : '';
+  p.country     = a ? (a.ct || a.cc || '') : '';
   p.note        = (note || '').trim();
   await save();
 }

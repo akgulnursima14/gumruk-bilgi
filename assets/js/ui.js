@@ -179,6 +179,7 @@ export function showEditPassModal(p, onSave) {
     const showErr = (id, msg) => {
       const el = document.getElementById(id);
       if (el) { el.textContent = msg; el.hidden = false; }
+      showToast(msg, 'warn');
     };
     const clearErr = id => {
       const el = document.getElementById(id);
@@ -188,10 +189,10 @@ export function showEditPassModal(p, onSave) {
     ['editPNameErr','editPBagsErr','editPWeightErr','editPAirportErr'].forEach(clearErr);
     let valid = true;
 
-    if (!name)                                                              { showErr('editPNameErr', 'Yolcu adını yazın.'); valid = false; }
-    if (bags === '' || !Number.isFinite(+bags) || +bags < 0)               { showErr('editPBagsErr', 'Geçerli çanta sayısı girin.'); valid = false; }
-    if (weight === '' || !Number.isFinite(+weight) || +weight < 0)         { showErr('editPWeightErr', 'Geçerli ağırlık girin.'); valid = false; }
-    if (!exactAirport(code))                                                { showErr('editPAirportErr', 'Geçerli havalimanı kodu girin.'); valid = false; }
+    if (!name)                                                        { showErr('editPNameErr',   'Yolcu adını yazın.'); valid = false; }
+    if (bags === '' || !Number.isFinite(+bags) || +bags < 0)         { showErr('editPBagsErr',   'Geçerli çanta sayısı girin.'); valid = false; }
+    if (weight === '' || !Number.isFinite(+weight) || +weight < 0)   { showErr('editPWeightErr', 'Geçerli ağırlık girin.'); valid = false; }
+    if (code && !exactAirport(code))                                  { showErr('editPAirportErr','Havalimanı kodu tanınmadı — IATA (AYT) veya boş bırakın.'); valid = false; }
     if (!valid) return;
 
     try {
@@ -528,8 +529,8 @@ export function renderWorkspace(f, g, handlers) {
           <input id="pWeight" class="input" type="number" min="0" step="0.1" placeholder="0.0">
         </div>
         <div class="airport-ac-wrap">
-          <label class="label" for="pAirport">Hav. kodu</label>
-          <input id="pAirport" class="input" placeholder="AYT / LTAI" autocomplete="off"
+          <label class="label" for="pAirport">Hav. kodu <span style="font-weight:400;color:var(--muted)">(isteğe bağlı)</span></label>
+          <input id="pAirport" class="input" placeholder="AYT / LTAI — boş bırakılabilir" autocomplete="off"
                  aria-autocomplete="list" aria-controls="pAirportList">
           <div id="pAirportList" class="autocomplete-list" hidden role="listbox"></div>
         </div>
@@ -537,8 +538,9 @@ export function renderWorkspace(f, g, handlers) {
           <label class="label" for="pNote">Not</label>
           <input id="pNote" class="input" placeholder="İsteğe bağlı">
         </div>
-        <div style="padding-top:22px">
-          <button id="addPassengerBtn" class="btn btn-primary" style="width:100%">Ekle</button>
+        <div style="padding-top:22px;display:flex;gap:8px">
+          <button id="addPassengerBtn" class="btn btn-primary" style="flex:1">Ekle</button>
+          <button id="clearPassengerBtn" class="btn btn-secondary" title="Formu temizle">Temizle</button>
         </div>
       </div>
       <div id="airportPreview" class="airport-preview">Havalimanı kodunu yazınca bilgi görünür.</div>
@@ -569,6 +571,15 @@ export function renderWorkspace(f, g, handlers) {
   document.getElementById('renameFlight') ?.addEventListener('click', () => handlers.renameFlight());
   document.getElementById('deleteFlight') ?.addEventListener('click', () => handlers.deleteFlight());
   document.getElementById('addPassengerBtn')?.addEventListener('click', () => handlers.addPassenger());
+  document.getElementById('clearPassengerBtn')?.addEventListener('click', () => {
+    ['pName','pBags','pWeight','pAirport','pNote'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    const errEl = document.getElementById('addPassError');
+    if (errEl) { errEl.hidden = true; errEl.textContent = ''; }
+    updateAirportPreview('');
+    document.getElementById('pName')?.focus();
+  });
 
   const pAirport = document.getElementById('pAirport');
   pAirport?.addEventListener('input', e => {

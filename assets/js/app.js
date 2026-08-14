@@ -132,8 +132,7 @@ const wsHandlers = {
     if (!name) { show('Yolcu adını yazın.'); return; }
     if (bags === '' || !Number.isFinite(+bags) || +bags < 0) { show('Çanta sayısını kontrol edin (0 veya daha büyük sayı).'); return; }
     if (weight === '' || !Number.isFinite(+weight) || +weight < 0) { show('Ağırlığı kontrol edin (0 veya daha büyük sayı).'); return; }
-    if (byIATA.size === 0) { show('Havalimanı verisi henüz yüklenmedi. Lütfen birkaç saniye bekleyin.'); return; }
-    if (!exactAirport(code)) { show(`"${code || '?'}" tanımlı bir havalimanı kodu değil. IATA (AYT), ICAO (LTAI) veya ident girin.`); return; }
+    if (code && byIATA.size === 0) { show('Havalimanı verisi henüz yüklenmedi. Kodu boş bırakın veya birkaç saniye bekleyin.'); return; }
 
     try {
       await addPassenger(f, { name, bags, weight, code, note });
